@@ -4,9 +4,9 @@
  *
  * Scene description
  * -----------------
- * The Sun sits at the origin.  Six planets (Mercury, Venus, Earth, Mars,
- * Jupiter, Saturn) orbit it at different distances and angular speeds.
- * Earth has a Moon orbiting it (hierarchical transformation).
+ * The Sun sits at the origin.  Eight planets (Mercury, Venus, Earth, Mars,
+ * Jupiter, Saturn, Uranus, Neptune) orbit it at different distances and
+ * angular speeds.  Earth has a Moon orbiting it (hierarchical transformation).
  * Saturn has a simple ring rendered as a flat torus.
  *
  * Controls
@@ -346,16 +346,18 @@ int main()
     // -----------------------------------------------------------------------
     // Planet definitions
     // -----------------------------------------------------------------------
-    //                name        r    orbitR  orbitSpd  selfSpd          colour
-    Planet mercury = {"Mercury", 0.4f,  8.0f,  1.607f,  10.83f, {0.72f, 0.60f, 0.50f}, 0.0f, 0.0f};
-    Planet venus   = {"Venus",   0.9f, 13.0f,  1.174f,  -6.52f, {0.92f, 0.75f, 0.40f}, 1.0f, 0.0f};
-    Planet earth   = {"Earth",   1.0f, 19.0f,  1.000f,  10.00f, {0.25f, 0.55f, 0.87f}, 2.0f, 0.0f};
-    Planet moon    = {"Moon",    0.27f, 2.6f,  3.650f,   3.65f, {0.75f, 0.75f, 0.75f}, 0.0f, 0.0f};
-    Planet mars    = {"Mars",    0.55f,26.0f,  0.802f,  10.04f, {0.87f, 0.38f, 0.20f}, 3.5f, 0.0f};
-    Planet jupiter = {"Jupiter", 2.8f, 40.0f,  0.434f,  25.37f, {0.83f, 0.72f, 0.62f}, 0.5f, 0.0f};
-    Planet saturn  = {"Saturn",  2.3f, 55.0f,  0.323f,  22.58f, {0.90f, 0.83f, 0.65f}, 4.0f, 0.0f};
-    Planet uranus  = {"Uranus",  1.5f, 68.0f,  0.228f, -14.29f, {0.56f, 0.89f, 0.95f}, 1.2f, 0.0f};
-    Planet neptune = {"Neptune", 1.4f, 80.0f,  0.182f,  15.97f, {0.22f, 0.41f, 0.87f}, 5.0f, 0.0f};
+    // Initial orbital angles are staggered (in radians) so planets start
+    // spread around the Sun rather than all lined up at angle 0.
+    //                name        r    orbitR  orbitSpd  selfSpd          colour               angle  selfAngle
+    Planet mercury = {"Mercury", 0.4f,  8.0f,  1.607f,  10.83f, {0.72f, 0.60f, 0.50f}, 0.00f, 0.0f};
+    Planet venus   = {"Venus",   0.9f, 13.0f,  1.174f,  -6.52f, {0.92f, 0.75f, 0.40f}, 1.05f, 0.0f};
+    Planet earth   = {"Earth",   1.0f, 19.0f,  1.000f,  10.00f, {0.25f, 0.55f, 0.87f}, 2.09f, 0.0f};
+    Planet moon    = {"Moon",    0.27f, 2.6f,  3.650f,   3.65f, {0.75f, 0.75f, 0.75f}, 0.00f, 0.0f};
+    Planet mars    = {"Mars",    0.55f,26.0f,  0.802f,  10.04f, {0.87f, 0.38f, 0.20f}, 3.67f, 0.0f};
+    Planet jupiter = {"Jupiter", 2.8f, 40.0f,  0.434f,  25.37f, {0.83f, 0.72f, 0.62f}, 0.52f, 0.0f};
+    Planet saturn  = {"Saturn",  2.3f, 55.0f,  0.323f,  22.58f, {0.90f, 0.83f, 0.65f}, 4.19f, 0.0f};
+    Planet uranus  = {"Uranus",  1.5f, 68.0f,  0.228f, -14.29f, {0.56f, 0.89f, 0.95f}, 1.26f, 0.0f};
+    Planet neptune = {"Neptune", 1.4f, 80.0f,  0.182f,  15.97f, {0.22f, 0.41f, 0.87f}, 5.24f, 0.0f};
 
     // Convenience list for planets that orbit the Sun directly
     std::vector<Planet*> solarPlanets = {
