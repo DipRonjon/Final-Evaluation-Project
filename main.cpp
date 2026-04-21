@@ -714,7 +714,7 @@ void drawWarehouse(){
 }
 
 // =============================================================
-//  SMALL HOUSE
+//  SMALL HOUSE 
 // =============================================================
 void drawSmallHouse(){
     float nf=getNightFactor();
@@ -734,7 +734,7 @@ void drawSmallHouse(){
 }
 
 // =============================================================
-//  RAILROAD TRACKS
+//  RAILROAD TRACKS THE TRAIN WILLL RUN ON 
 // =============================================================
 void drawTracks(){
     glColor3f(0.42f,0.24f,0.08f);
@@ -744,7 +744,7 @@ void drawTracks(){
 }
 
 // =============================================================
-//  TRAIN
+//  TRAIN BODY STRUCTURE CODE 
 // =============================================================
 void drawTrain(){
     float nf=getNightFactor();
@@ -842,7 +842,7 @@ void drawHUD(){
 }
 
 // =============================================================
-//  FOOTBALL
+//  FOOTBALL BASIXC BALL 
 // =============================================================
 void drawFootball(float fx,float fy){
     float r=11.0f;
@@ -864,7 +864,7 @@ void drawFootball(float fx,float fy){
 }
 
 // =============================================================
-//  CHILDREN
+//  CHILDREN PLAYING IN THE FIELD ALL THE THEIR BODEY PART 
 // =============================================================
 void drawChild(float x,float ground,
                float sr,float sg,float sb,
@@ -971,7 +971,7 @@ void drawChildren(){
 }
 
 // =============================================================
-//  DISPLAY
+//  All the display function 
 // =============================================================
 void display(){
     float sr,sg,sb;
@@ -1192,7 +1192,7 @@ void timer(int){
 }
 
 // =============================================================
-//  INPUT
+//  input taking part 
 // =============================================================
 void specialKeyDown(int key,int,int){
     if(key==GLUT_KEY_LEFT)  keyDown[0]=true;
@@ -1218,7 +1218,7 @@ void keyboard(unsigned char key,int,int){
 }
 
 // =============================================================
-//  MAIN
+//  This is main function part 
 // =============================================================
 int main(int argc,char** argv){
     srand(42);
