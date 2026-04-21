@@ -552,64 +552,50 @@ void drawStreetLamps(){
 
         // ── Night glow ────────────────────────────────────────────────
         if(nf > 0.05f){
-            float flick  = 0.88f + 0.12f * sinf(lampFlicker[i] * 11.5f);
-            float bright = nf * flick;
+            // Lamp flicker kept for the bulb only (subtle); halos are NOT flickered
+            float bright = nf;
 
-            // Bulb head glow (warm yellow-orange)
+            // Warm sodium-lamp colour
             float br = clampf(1.00f * bright, 0.0f, 1.0f);
-            float bg = clampf(0.85f * bright, 0.0f, 1.0f);
-            float bb = clampf(0.30f * bright, 0.0f, 1.0f);
+            float bg = clampf(0.82f * bright, 0.0f, 1.0f);
+            float bb = clampf(0.22f * bright, 0.0f, 1.0f);
 
-            // ── Outer soft halo – multi-layer circles, largest first ──
-            // Layer 3 (widest, very faint)
-            glColor4f(br, bg*0.6f, bb*0.2f, 0.12f * bright);
-            drawCircle(lx+25, ly+107, 55, 55);
-            // Layer 2
-            glColor4f(br, bg*0.7f, bb*0.3f, 0.22f * bright);
-            drawCircle(lx+25, ly+107, 35, 35);
-            // Layer 1 (tightest, brightest)
-            glColor4f(br, bg*0.85f, bb*0.5f, 0.45f * bright);
-            drawCircle(lx+25, ly+107, 18, 18);
+            // Lamp head centre (just below the housing)
+            float hx = lx + 25.0f;
+            float hy = ly + 107.0f;   // y ≈ 267
+
+            // ── Halo rings – kept small so they never reach ground ────
+            // Outer ring (radius 20 – stays well above y=247)
+            glColor4f(br, bg * 0.65f, bb * 0.2f, 0.14f * bright);
+            drawCircle(hx, hy, 20, 20);
+            // Mid ring
+            glColor4f(br, bg * 0.75f, bb * 0.3f, 0.28f * bright);
+            drawCircle(hx, hy, 12, 12);
+            // Inner ring
+            glColor4f(br, bg * 0.88f, bb * 0.5f, 0.50f * bright);
+            drawCircle(hx, hy,  7,  7);
 
             // ── Solid bright bulb core ────────────────────────────────
             glColor3f(br, bg, bb);
-            drawCircle(lx+25, ly+107, 7, 7);
+            drawCircle(hx, hy, 5, 5);
 
-            // ── Ground cone – fans DOWNWARD (lower Y values in OpenGL) ─
-            //    The cone apex is at the bulb and spreads toward the ground
-            //    (y decreases = moves toward ground in this coordinate system
-            //     since Y=0 is bottom of window)
-            //    We draw a triangle fan going from the bulb DOWN to ground level.
-            float apexX  = lx + 25.0f;
-            float apexY  = ly + 100.0f;   // bottom of lamp housing (toward ground)
-            float coneHalfW = 70.0f;
-            float coneLen   = 115.0f;     // how far down the cone reaches
-            int   coneSteps = 24;
+            // ── Downward light cone – short and narrow ────────────────
+            //    apexY is the bottom face of the housing; cone fans downward.
+            //    coneLen kept short (50px) so it stops at y≈210, above ground.
+            float apexX    = hx;
+            float apexY    = ly + 100.0f;   // y ≈ 260
+            float coneHalfW = 32.0f;
+            float coneLen   = 50.0f;        // reaches to y ≈ 210 — above children
+            int   coneSteps = 20;
 
             glBegin(GL_TRIANGLE_FAN);
-              // Apex: warm bright colour
-              glColor4f(br, bg * 0.75f, bb * 0.25f, 0.55f * bright);
+              glColor4f(br, bg * 0.70f, bb * 0.20f, 0.45f * bright);
               glVertex2f(apexX, apexY);
-              // Spread out downward
               for(int s = 0; s <= coneSteps; s++){
-                  float t2 = (float)s / coneSteps;
+                  float t2  = (float)s / coneSteps;
                   float cx2 = apexX + (t2 - 0.5f) * coneHalfW * 2.0f;
                   float cy2 = apexY - coneLen;
-                  // Fade to transparent at the far end (not black!)
-                  glColor4f(br * 0.8f, bg * 0.55f, bb * 0.15f, 0.0f);
-                  glVertex2f(cx2, cy2);
-              }
-            glEnd();
-
-            // ── Secondary smaller upward glow above the lamp ──────────
-            glBegin(GL_TRIANGLE_FAN);
-              glColor4f(br, bg * 0.9f, bb * 0.4f, 0.30f * bright);
-              glVertex2f(apexX, ly + 113.0f);
-              for(int s = 0; s <= 20; s++){
-                  float t2 = (float)s / 20;
-                  float cx2 = apexX + (t2 - 0.5f) * 50.0f;
-                  float cy2 = ly + 113.0f + 45.0f;
-                  glColor4f(br, bg * 0.6f, 0.0f, 0.0f);
+                  glColor4f(br * 0.7f, bg * 0.50f, 0.0f, 0.0f); // fade to transparent
                   glVertex2f(cx2, cy2);
               }
             glEnd();
@@ -700,8 +686,7 @@ void drawClockTower(){
     glVertex2f(bx+44,by+125); glVertex2f(bx+62,by+130);
     glEnd(); glLineWidth(1.0f);
     if(nf>0){
-        float flick=0.85f+0.15f*sinf(winFlicker[0]*9.0f);
-        glColor3f(1.0f*nf*flick, 0.9f*nf*flick, 0.3f*nf*flick);
+        glColor3f(1.0f*nf, 0.88f*nf, 0.30f*nf);
     } else glColor3f(0.25f,0.12f,0.03f);
     drawRect(bx+30,by+35,28,35);
 }
@@ -717,10 +702,8 @@ void drawWarehouse(){
     glColor3f(0.30f,0.14f,0.04f); drawRect(bx+112,by,96,118);
     glColor3f(0.50f,0.28f,0.08f); drawRect(bx+108,by+114,104,10);
     if(nf>0){
-        float f1=0.80f+0.20f*sinf(winFlicker[1]*7.3f);
-        float f2=0.80f+0.20f*sinf(winFlicker[2]*8.1f);
-        glColor3f(1.0f*nf*f1,0.9f*nf*f1,0.4f*nf*f1); drawRect(bx+25,by+80,55,45);
-        glColor3f(1.0f*nf*f2,0.9f*nf*f2,0.4f*nf*f2); drawRect(bx+240,by+80,55,45);
+        glColor3f(1.0f*nf, 0.88f*nf, 0.30f*nf); drawRect(bx+25,by+80,55,45);
+        glColor3f(1.0f*nf, 0.88f*nf, 0.30f*nf); drawRect(bx+240,by+80,55,45);
     } else {
         glColor3f(0.60f,0.80f,0.95f);
         drawRect(bx+25,by+80,55,45); drawRect(bx+240,by+80,55,45);
@@ -743,8 +726,7 @@ void drawSmallHouse(){
     glColor3f(0.50f,0.28f,0.10f);
     drawRect(bx+46,by+27,70,4); drawRect(bx+46,by+54,70,4); drawRect(bx+81,by,4,82);
     if(nf>0){
-        float f3=0.80f+0.20f*sinf(winFlicker[3]*6.9f);
-        glColor3f(1.0f*nf*f3,0.9f*nf*f3,0.4f*nf*f3);
+        glColor3f(1.0f*nf, 0.88f*nf, 0.30f*nf);
     } else glColor3f(0.60f,0.80f,0.95f);
     drawRect(bx+12,by+75,28,28);
     glColor3f(0.45f,0.60f,0.75f);
