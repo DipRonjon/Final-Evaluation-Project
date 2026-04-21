@@ -9,7 +9,7 @@
 #define WINDOW_W      1200
 #define WINDOW_H      700
 #define MAX_SMOKE     50
-#define MAX_RAIN      220
+#define MAX_RAIN      500       // CHANGED: 220 -> 500 (heavier rain)
 #define MAX_STARS     130
 #define MAX_LEAVES    80
 #define MAX_LAMPS     4
@@ -196,8 +196,8 @@ void initRain() {
     for(int i=0;i<MAX_RAIN;i++){
         rain[i].x      = (float)(rand()%1200);
         rain[i].y      = (float)(rand()%700+100);
-        rain[i].speed  = 6.0f+(rand()%40)*0.1f;
-        rain[i].length = 10.0f+(rand()%8);
+        rain[i].speed  = 10.0f+(rand()%60)*0.1f;  // CHANGED: 6+(rand%40)*0.1 -> 10+(rand%60)*0.1
+        rain[i].length = 14.0f+(rand()%12);        // CHANGED: 10+(rand%8) -> 14+(rand%12)
     }
 }
 
@@ -500,7 +500,7 @@ void drawLeaves(){
 void drawRain(){
     if(!rainActive) return;
     glColor3f(0.55f,0.75f,0.95f);
-    glLineWidth(1.2f);
+    glLineWidth(1.8f);  // CHANGED: 1.2 -> 1.8 (thicker drops)
     glBegin(GL_LINES);
     for(int i=0;i<MAX_RAIN;i++){
         glVertex2f(rain[i].x,        rain[i].y);
@@ -521,71 +521,51 @@ void drawLightning(){
 
 // =============================================================
 //  STREET LAMPS  (FIXED)
-//  - Larger, warmer glow cone that fans UPWARD from the bulb
-//    so it's visible against dark backgrounds
-//  - Soft multi-layer halo around the bulb head
-//  - Uses glBlendFunc for additive-style blending on the halo
 // =============================================================
 void drawStreetLamps(){
     float nf = getNightFactor();
     float lampX[MAX_LAMPS] = { 155.0f, 390.0f, 720.0f, 1050.0f };
 
-    // Enable blending for the glow layers
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     for(int i=0;i<MAX_LAMPS;i++){
         float lx = lampX[i];
-        float ly = 160.0f;   // base on ground
+        float ly = 160.0f;
 
-        // ── Pole ──────────────────────────────────────────────────────
         glColor3f(0.38f,0.38f,0.40f);
         drawRect(lx-3, ly, 6, 110);
 
-        // ── Horizontal arm extending right ────────────────────────────
         glColor3f(0.38f,0.38f,0.40f);
         drawRect(lx-3, ly+104, 24, 5);
 
-        // ── Lamp head (housing) ───────────────────────────────────────
         glColor3f(0.28f,0.28f,0.30f);
         drawRect(lx+16, ly+100, 18, 13);
 
-        // ── Night glow ────────────────────────────────────────────────
         if(nf > 0.05f){
-            // Lamp flicker kept for the bulb only (subtle); halos are NOT flickered
             float bright = nf;
 
-            // Warm sodium-lamp colour
             float br = clampf(1.00f * bright, 0.0f, 1.0f);
             float bg = clampf(0.82f * bright, 0.0f, 1.0f);
             float bb = clampf(0.22f * bright, 0.0f, 1.0f);
 
-            // Lamp head centre (just below the housing)
             float hx = lx + 25.0f;
-            float hy = ly + 107.0f;   // y ≈ 267
+            float hy = ly + 107.0f;
 
-            // ── Halo rings – kept small so they never reach ground ────
-            // Outer ring (radius 20 – stays well above y=247)
             glColor4f(br, bg * 0.65f, bb * 0.2f, 0.14f * bright);
             drawCircle(hx, hy, 20, 20);
-            // Mid ring
             glColor4f(br, bg * 0.75f, bb * 0.3f, 0.28f * bright);
             drawCircle(hx, hy, 12, 12);
-            // Inner ring
             glColor4f(br, bg * 0.88f, bb * 0.5f, 0.50f * bright);
             drawCircle(hx, hy,  7,  7);
 
-            // ── Solid bright bulb core ────────────────────────────────
             glColor3f(br, bg, bb);
             drawCircle(hx, hy, 5, 5);
 
-            // ── Downward light cone – short and narrow ────────────────
-            //    apexY is the bottom face of the housing; cone fans downward.
-            //    coneLen kept short (50px) so it stops at y≈210, above ground.
             float apexX    = hx;
-            float apexY    = ly + 100.0f;   // y ≈ 260
+            float apexY    = ly + 100.0f;
             float coneHalfW = 32.0f;
-            float coneLen   = 50.0f;        // reaches to y ≈ 210 — above children
+            float coneLen   = 50.0f;
             int   coneSteps = 20;
 
             glBegin(GL_TRIANGLE_FAN);
@@ -595,7 +575,7 @@ void drawStreetLamps(){
                   float t2  = (float)s / coneSteps;
                   float cx2 = apexX + (t2 - 0.5f) * coneHalfW * 2.0f;
                   float cy2 = apexY - coneLen;
-                  glColor4f(br * 0.7f, bg * 0.50f, 0.0f, 0.0f); // fade to transparent
+                  glColor4f(br * 0.7f, bg * 0.50f, 0.0f, 0.0f);
                   glVertex2f(cx2, cy2);
               }
             glEnd();
@@ -714,7 +694,7 @@ void drawWarehouse(){
 }
 
 // =============================================================
-//  SMALL HOUSE 
+//  SMALL HOUSE
 // =============================================================
 void drawSmallHouse(){
     float nf=getNightFactor();
@@ -734,7 +714,7 @@ void drawSmallHouse(){
 }
 
 // =============================================================
-//  RAILROAD TRACKS THE TRAIN WILLL RUN ON 
+//  RAILROAD TRACKS
 // =============================================================
 void drawTracks(){
     glColor3f(0.42f,0.24f,0.08f);
@@ -744,7 +724,7 @@ void drawTracks(){
 }
 
 // =============================================================
-//  TRAIN BODY STRUCTURE CODE 
+//  TRAIN
 // =============================================================
 void drawTrain(){
     float nf=getNightFactor();
@@ -842,7 +822,7 @@ void drawHUD(){
 }
 
 // =============================================================
-//  FOOTBALL BASIXC BALL 
+//  FOOTBALL
 // =============================================================
 void drawFootball(float fx,float fy){
     float r=11.0f;
@@ -864,7 +844,7 @@ void drawFootball(float fx,float fy){
 }
 
 // =============================================================
-//  CHILDREN PLAYING IN THE FIELD ALL THE THEIR BODEY PART 
+//  CHILDREN
 // =============================================================
 void drawChild(float x,float ground,
                float sr,float sg,float sb,
@@ -971,7 +951,7 @@ void drawChildren(){
 }
 
 // =============================================================
-//  All the display function 
+//  DISPLAY
 // =============================================================
 void display(){
     float sr,sg,sb;
@@ -997,7 +977,6 @@ void display(){
     drawBush(840,278); drawBush(1010,278);
 
     drawGround();
-    // drawRiver() REMOVED
     drawTracks();
     drawTrain();
     drawSmoke();
@@ -1192,7 +1171,7 @@ void timer(int){
 }
 
 // =============================================================
-//  input taking part 
+//  INPUT
 // =============================================================
 void specialKeyDown(int key,int,int){
     if(key==GLUT_KEY_LEFT)  keyDown[0]=true;
@@ -1218,7 +1197,7 @@ void keyboard(unsigned char key,int,int){
 }
 
 // =============================================================
-//  This is main function part 
+//  MAIN
 // =============================================================
 int main(int argc,char** argv){
     srand(42);
@@ -1236,7 +1215,7 @@ int main(int argc,char** argv){
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_BLEND);  // off by default; enabled per-draw in lamp function
+    glDisable(GL_BLEND);
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
