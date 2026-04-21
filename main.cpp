@@ -9,7 +9,7 @@
 #define WINDOW_W      1200
 #define WINDOW_H      700
 #define MAX_SMOKE     50
-#define MAX_RAIN      500       // CHANGED: 220 -> 500 (heavier rain)
+#define MAX_RAIN      500
 #define MAX_STARS     130
 #define MAX_LEAVES    80
 #define MAX_LAMPS     4
@@ -118,7 +118,7 @@ struct Leaf {
 };
 Leaf leaves[MAX_LEAVES];
 
-// ================= WATER SHIMMER (kept for fog use) =================
+// ================= WATER SHIMMER =================
 float waterShimmer = 0.0f;
 
 // ================= FOG =================
@@ -199,8 +199,8 @@ void initRain() {
     for(int i=0;i<MAX_RAIN;i++){
         rain[i].x      = (float)(rand()%1200);
         rain[i].y      = (float)(rand()%700+100);
-        rain[i].speed  = 10.0f+(rand()%60)*0.1f;  // CHANGED: 6+(rand%40)*0.1 -> 10+(rand%60)*0.1
-        rain[i].length = 14.0f+(rand()%12);        // CHANGED: 10+(rand%8) -> 14+(rand%12)
+        rain[i].speed  = 10.0f+(rand()%60)*0.1f;
+        rain[i].length = 14.0f+(rand()%12);
     }
 }
 
@@ -503,7 +503,7 @@ void drawLeaves(){
 void drawRain(){
     if(!rainActive) return;
     glColor3f(0.55f,0.75f,0.95f);
-    glLineWidth(1.8f);  // CHANGED: 1.2 -> 1.8 (thicker drops)
+    glLineWidth(1.8f);
     glBegin(GL_LINES);
     for(int i=0;i<MAX_RAIN;i++){
         glVertex2f(rain[i].x,        rain[i].y);
@@ -523,7 +523,7 @@ void drawLightning(){
 }
 
 // =============================================================
-//  STREET LAMPS  (FIXED)
+//  STREET LAMPS
 // =============================================================
 void drawStreetLamps(){
     float nf = getNightFactor();
@@ -538,21 +538,17 @@ void drawStreetLamps(){
 
         glColor3f(0.38f,0.38f,0.40f);
         drawRect(lx-3, ly, 6, 110);
-
         glColor3f(0.38f,0.38f,0.40f);
         drawRect(lx-3, ly+104, 24, 5);
-
         glColor3f(0.28f,0.28f,0.30f);
         drawRect(lx+16, ly+100, 18, 13);
 
         if(nf > 0.05f){
             float bright = nf * (0.85f + 0.15f * sinf(lampFlicker[i]));
             bright = clampf(bright, 0.0f, 1.0f);
-
             float br = clampf(1.00f * bright, 0.0f, 1.0f);
             float bg = clampf(0.82f * bright, 0.0f, 1.0f);
             float bb = clampf(0.22f * bright, 0.0f, 1.0f);
-
             float hx = lx + 25.0f;
             float hy = ly + 107.0f;
 
@@ -562,7 +558,6 @@ void drawStreetLamps(){
             drawCircle(hx, hy, 12, 12);
             glColor4f(br, bg * 0.88f, bb * 0.5f, 0.50f * bright);
             drawCircle(hx, hy,  7,  7);
-
             glColor3f(br, bg, bb);
             drawCircle(hx, hy, 5, 5);
 
@@ -585,7 +580,6 @@ void drawStreetLamps(){
             glEnd();
         }
     }
-
     glDisable(GL_BLEND);
 }
 
@@ -644,16 +638,13 @@ void drawAudience(){
         float x = bx + 16.0f + i * 18.0f;
         float row = (i % 3 == 0) ? 2.0f : ((i % 2 == 0) ? 1.0f : 0.0f);
         float y = by + 6.0f + row * 20.0f;
-
         float shirtR = (0.30f + 0.05f * (i % 5)) * dim;
         float shirtG = (0.18f + 0.09f * ((i + 2) % 4)) * dim;
         float shirtB = (0.22f + 0.10f * ((i + 1) % 3)) * dim;
-
         glColor3f(0.82f * dim, 0.62f * dim, 0.48f * dim);
         drawCircle(x, y + 12.0f, 3.0f, 3.0f);
         glColor3f(shirtR, shirtG, shirtB);
         drawRect(x - 3.5f, y + 4.0f, 7.0f, 8.0f);
-
         if(i % 4 == 0){
             glColor3f(0.95f * dim, 0.95f * dim, 0.35f * dim);
             drawRect(x - 5.0f, y + 16.0f, 10.0f, 2.2f);
@@ -776,8 +767,6 @@ void drawSmallHouse(){
 void drawLeftRowHouses(){
     float nf=getNightFactor();
     float by=280.0f;
-
-    // House A
     float b1=42.0f;
     glColor3f(0.78f,0.58f,0.22f); drawRect(b1,by,120,104);
     glColor3f(0.70f,0.12f,0.12f); drawTriangle(b1-8,by+104,b1+60,by+154,b1+128,by+104);
@@ -791,7 +780,6 @@ void drawLeftRowHouses(){
     drawRect(b1+26,by+58,3,24); drawRect(b1+15,by+69,24,3);
     drawRect(b1+93,by+58,3,24); drawRect(b1+82,by+69,24,3);
 
-    // House B
     float b2=168.0f;
     glColor3f(0.84f,0.70f,0.34f); drawRect(b2,by,118,95);
     glColor3f(0.48f,0.25f,0.10f); drawRect(b2+48,by,20,58);
@@ -810,8 +798,6 @@ void drawLeftRowHouses(){
 void drawRightRowHouses(){
     float nf=getNightFactor();
     float by=280.0f;
-
-    // House C
     float b1=1020.0f;
     glColor3f(0.76f,0.56f,0.24f); drawRect(b1,by,118,96);
     glColor3f(0.75f,0.10f,0.10f); drawTriangle(b1-8,by+96,b1+59,by+146,b1+126,by+96);
@@ -957,112 +943,181 @@ void drawFootball(float fx,float fy){
 }
 
 // =============================================================
-//  CHILDREN
+//  CHILDREN  (IMPROVED: smooth walk + kick animation)
 // =============================================================
-void drawChild(float x,float ground,
-               float sr,float sg,float sb,
-               float pr,float pg,float pb,
-               int pose){
-    float hy=ground, kny=ground+18.0f, hip=ground+34.0f;
-    float sho=ground+56.0f, nky=ground+62.0f, hcy=ground+74.0f;
-    float hr=10.0f;
+void drawChild(float x, float ground,
+               float sr, float sg, float sb,
+               float pr, float pg, float pb,
+               int pose)
+{
+    float hy  = ground;
+    float kny = ground + 18.0f;
+    float hip = ground + 34.0f;
+    float sho = ground + 56.0f;
+    float nky = ground + 62.0f;
+    float hcy = ground + 74.0f;
+    float hr  = 10.0f;
 
-    glColor3f(pr,pg,pb); glLineWidth(4.5f);
-    if(pose==0){
+    // ---------- LEGS ----------
+    glColor3f(pr, pg, pb);
+    glLineWidth(4.5f);
+
+    if(pose == 0){
         glBegin(GL_LINES);
-        glVertex2f(x-5,hip); glVertex2f(x-14,kny); glVertex2f(x-14,kny); glVertex2f(x-8,hy);
-        glVertex2f(x+5,hip); glVertex2f(x+8,kny);  glVertex2f(x+8,kny);  glVertex2f(x+16,hy);
+        glVertex2f(x-5,hip);  glVertex2f(x-14,kny); glVertex2f(x-14,kny); glVertex2f(x-8,hy);
+        glVertex2f(x+5,hip);  glVertex2f(x+8, kny); glVertex2f(x+8, kny); glVertex2f(x+16,hy);
         glEnd();
-    } else if(pose==1){
+    } else if(pose == 1){
         glBegin(GL_LINES);
-        glVertex2f(x-5,hip); glVertex2f(x-6,kny);     glVertex2f(x-6,kny);    glVertex2f(x-4,hy);
-        glVertex2f(x+5,hip); glVertex2f(x+18,kny+10); glVertex2f(x+18,kny+10);glVertex2f(x+30,kny+6);
+        glVertex2f(x-5,hip);  glVertex2f(x-6, kny);      glVertex2f(x-6, kny);     glVertex2f(x-4,hy);
+        glVertex2f(x+5,hip);  glVertex2f(x+18,kny+10);   glVertex2f(x+18,kny+10);  glVertex2f(x+30,kny+6);
         glEnd();
-    } else if(pose==2){
+    } else if(pose == 2){
         glBegin(GL_LINES);
-        glVertex2f(x-5,hip); glVertex2f(x-16,kny); glVertex2f(x-16,kny); glVertex2f(x-12,hy);
-        glVertex2f(x+5,hip); glVertex2f(x+16,kny); glVertex2f(x+16,kny); glVertex2f(x+12,hy);
+        glVertex2f(x-5,hip);  glVertex2f(x-16,kny); glVertex2f(x-16,kny); glVertex2f(x-12,hy);
+        glVertex2f(x+5,hip);  glVertex2f(x+16,kny); glVertex2f(x+16,kny); glVertex2f(x+12,hy);
         glEnd();
-    } else if(pose==3){
+    } else if(pose == 3){
         glBegin(GL_LINES);
         glVertex2f(x+5,hip);  glVertex2f(x+14,kny); glVertex2f(x+14,kny); glVertex2f(x+8,hy);
-        glVertex2f(x-5,hip);  glVertex2f(x-8,kny);  glVertex2f(x-8,kny);  glVertex2f(x-16,hy);
+        glVertex2f(x-5,hip);  glVertex2f(x-8, kny); glVertex2f(x-8, kny); glVertex2f(x-16,hy);
         glEnd();
-    } else {
+    } else if(pose == 4){
         glBegin(GL_LINES);
-        glVertex2f(x-5,hip); glVertex2f(x-20,kny); glVertex2f(x-20,kny); glVertex2f(x-18,hy);
-        glVertex2f(x+5,hip); glVertex2f(x+20,kny); glVertex2f(x+20,kny); glVertex2f(x+18,hy);
+        glVertex2f(x-5,hip);  glVertex2f(x-20,kny); glVertex2f(x-20,kny); glVertex2f(x-18,hy);
+        glVertex2f(x+5,hip);  glVertex2f(x+20,kny); glVertex2f(x+20,kny); glVertex2f(x+18,hy);
+        glEnd();
+    } else {
+        // pose 5 = KICK — right leg extended forward and up
+        glBegin(GL_LINES);
+        // standing left leg
+        glVertex2f(x-5,hip);  glVertex2f(x-6, kny); glVertex2f(x-6, kny); glVertex2f(x-4,hy);
+        // kicking right leg — thigh forward, shin extended
+        glVertex2f(x+5,hip);  glVertex2f(x+22,kny+14);
+        glVertex2f(x+22,kny+14); glVertex2f(x+42,kny+8);
         glEnd();
     }
 
-    glColor3f(0.15f,0.08f,0.02f); glLineWidth(5.5f);
-    if(pose==0){
-        glBegin(GL_LINES); glVertex2f(x-8,hy); glVertex2f(x-18,hy); glVertex2f(x+16,hy); glVertex2f(x+6,hy); glEnd();
-    } else if(pose==1){
-        glBegin(GL_LINES); glVertex2f(x-4,hy); glVertex2f(x-14,hy); glVertex2f(x+30,kny+6); glVertex2f(x+40,kny+2); glEnd();
-    } else if(pose==2){
-        glBegin(GL_LINES); glVertex2f(x-12,hy); glVertex2f(x-22,hy); glVertex2f(x+12,hy); glVertex2f(x+22,hy); glEnd();
-    } else if(pose==3){
-        glBegin(GL_LINES); glVertex2f(x+8,hy); glVertex2f(x+18,hy); glVertex2f(x-16,hy); glVertex2f(x-6,hy); glEnd();
+    // ---------- SHOES ----------
+    glColor3f(0.15f, 0.08f, 0.02f);
+    glLineWidth(5.5f);
+
+    if(pose == 0){
+        glBegin(GL_LINES); glVertex2f(x-8,hy);  glVertex2f(x-18,hy); glVertex2f(x+16,hy); glVertex2f(x+6,hy);  glEnd();
+    } else if(pose == 1){
+        glBegin(GL_LINES); glVertex2f(x-4,hy);  glVertex2f(x-14,hy); glVertex2f(x+30,kny+6); glVertex2f(x+40,kny+2); glEnd();
+    } else if(pose == 2){
+        glBegin(GL_LINES); glVertex2f(x-12,hy); glVertex2f(x-22,hy); glVertex2f(x+12,hy);  glVertex2f(x+22,hy);  glEnd();
+    } else if(pose == 3){
+        glBegin(GL_LINES); glVertex2f(x+8,hy);  glVertex2f(x+18,hy); glVertex2f(x-16,hy);  glVertex2f(x-6,hy);   glEnd();
+    } else if(pose == 4){
+        glBegin(GL_LINES); glVertex2f(x-18,hy); glVertex2f(x-28,hy); glVertex2f(x+18,hy);  glVertex2f(x+28,hy);  glEnd();
     } else {
-        glBegin(GL_LINES); glVertex2f(x-18,hy); glVertex2f(x-28,hy); glVertex2f(x+18,hy); glVertex2f(x+28,hy); glEnd();
+        // kick shoes
+        glBegin(GL_LINES);
+        glVertex2f(x-4,hy);  glVertex2f(x-14,hy);          // standing foot
+        glVertex2f(x+42,kny+8); glVertex2f(x+54,kny+4);    // kicking foot
+        glEnd();
     }
     glLineWidth(1.0f);
 
-    glColor3f(sr,sg,sb); drawRect(x-10,hip,20,sho-hip);
+    // ---------- TORSO ----------
+    glColor3f(sr, sg, sb);
+    drawRect(x-10, hip, 20, sho-hip);
 
-    glColor3f(0.82f,0.62f,0.48f); glLineWidth(4.0f);
-    if(pose==0){
+    // ---------- ARMS ----------
+    glColor3f(0.82f, 0.62f, 0.48f);
+    glLineWidth(4.0f);
+
+    if(pose == 0){
         glBegin(GL_LINES); glVertex2f(x-10,sho-4); glVertex2f(x-24,sho-18); glVertex2f(x+10,sho-4); glVertex2f(x+18,sho-22); glEnd();
-    } else if(pose==1){
-        glBegin(GL_LINES); glVertex2f(x-10,sho-4); glVertex2f(x-26,sho-10); glVertex2f(x+10,sho-4); glVertex2f(x+20,sho-8); glEnd();
-    } else if(pose==2){
+    } else if(pose == 1){
+        glBegin(GL_LINES); glVertex2f(x-10,sho-4); glVertex2f(x-26,sho-10); glVertex2f(x+10,sho-4); glVertex2f(x+20,sho-8);  glEnd();
+    } else if(pose == 2){
         glBegin(GL_LINES); glVertex2f(x-10,sho); glVertex2f(x-24,sho+22); glVertex2f(x+10,sho); glVertex2f(x+24,sho+22); glEnd();
-    } else if(pose==3){
+    } else if(pose == 3){
         glBegin(GL_LINES); glVertex2f(x+10,sho-4); glVertex2f(x+24,sho-18); glVertex2f(x-10,sho-4); glVertex2f(x-18,sho-22); glEnd();
+    } else if(pose == 4){
+        glBegin(GL_LINES); glVertex2f(x-10,sho-2); glVertex2f(x-34,sho+5);  glVertex2f(x+10,sho-2); glVertex2f(x+34,sho+5);  glEnd();
     } else {
-        glBegin(GL_LINES); glVertex2f(x-10,sho-2); glVertex2f(x-34,sho+5); glVertex2f(x+10,sho-2); glVertex2f(x+34,sho+5); glEnd();
+        // kick arms — left arm back for balance, right arm forward
+        glBegin(GL_LINES);
+        glVertex2f(x-10,sho-4); glVertex2f(x-28,sho-8);
+        glVertex2f(x+10,sho-4); glVertex2f(x+26,sho-20);
+        glEnd();
     }
     glLineWidth(1.0f);
 
-    glColor3f(0.82f,0.62f,0.48f);
-    drawRect(x-4,nky,8,hcy-nky-2);
-    drawCircle(x,hcy,hr,hr);
-    glColor3f(0.25f,0.15f,0.05f); drawCircle(x,hcy+2,hr,hr*0.55f);
-    glColor3f(0.10f,0.10f,0.10f);
-    drawCircle(x-3.5f,hcy+1,2.2f,2.2f); drawCircle(x+3.5f,hcy+1,2.2f,2.2f);
-    glColor3f(0.55f,0.20f,0.10f); glLineWidth(1.5f);
+    // ---------- NECK + HEAD ----------
+    glColor3f(0.82f, 0.62f, 0.48f);
+    drawRect(x-4, nky, 8, hcy-nky-2);
+    drawCircle(x, hcy, hr, hr);
+
+    // hair
+    glColor3f(0.25f, 0.15f, 0.05f);
+    drawCircle(x, hcy+2, hr, hr*0.55f);
+
+    // eyes
+    glColor3f(0.10f, 0.10f, 0.10f);
+    drawCircle(x-3.5f, hcy+1, 2.2f, 2.2f);
+    drawCircle(x+3.5f, hcy+1, 2.2f, 2.2f);
+
+    // smile
+    glColor3f(0.55f, 0.20f, 0.10f);
+    glLineWidth(1.5f);
     glBegin(GL_LINE_STRIP);
     for(int i=0;i<=8;i++){
-        float a=PI+i*(PI/8.0f);
-        glVertex2f(x+5.0f*cosf(a),hcy-2.0f+3.5f*sinf(a));
+        float a = PI + i*(PI/8.0f);
+        glVertex2f(x + 5.0f*cosf(a), hcy - 2.0f + 3.5f*sinf(a));
     }
-    glEnd(); glLineWidth(1.0f);
+    glEnd();
+    glLineWidth(1.0f);
 }
 
+// ---------- drawChildren — smooth 4-frame walk + kick ----------
 void drawChildren(){
-    float gnd=162.0f;
-    for(int i=0;i<5;i++){
+    float gnd = 162.0f;
+
+    for(int i = 0; i < 5; i++){
         int pose;
-        if(i==4){
-            pose=4;
-        } else if(fabsf(children[i].speed)<0.05f){
-            pose=children[i].basepose;
+
+        if(i == 4){
+            pose = 4;   // spectator always wide stance
         } else {
-            bool stepA = fmodf(children[i].animTimer, 1.0f) < 0.5f;
-            if(children[i].targetX > children[i].x) pose = stepA ? 3 : 2;
-            else                                     pose = stepA ? 0 : 2;
+            float dx      = children[i].targetX - children[i].x;
+            bool  moving  = fabsf(dx) > 2.0f;
+            bool  nearBall = fabsf(children[i].x - ballX) < 30.0f;
+
+            if(nearBall){
+                // Kick cycle: wind-up (pose 1) → kick (pose 5)
+                float kp = fmodf(children[i].animTimer, 1.2f);
+                pose = (kp < 0.55f) ? 1 : 5;
+            } else if(!moving){
+                pose = children[i].basepose;
+            } else {
+                // 4-frame smooth walk cycle
+                float wp = fmodf(children[i].animTimer, 2.0f);
+                if(dx > 0){
+                    if     (wp < 0.50f) pose = 3;
+                    else if(wp < 1.00f) pose = 2;
+                    else if(wp < 1.50f) pose = 0;
+                    else                pose = 2;
+                } else {
+                    if     (wp < 0.50f) pose = 0;
+                    else if(wp < 1.00f) pose = 2;
+                    else if(wp < 1.50f) pose = 3;
+                    else                pose = 2;
+                }
+            }
         }
+
         drawChild(children[i].x, gnd,
-                  children[i].sr,children[i].sg,children[i].sb,
-                  children[i].pr,children[i].pg,children[i].pb,
+                  children[i].sr, children[i].sg, children[i].sb,
+                  children[i].pr, children[i].pg, children[i].pb,
                   pose);
     }
-    if(fabsf(children[0].x - ballX) < 25.0f)
-        drawChild(children[0].x,gnd,
-                  children[0].sr,children[0].sg,children[0].sb,
-                  children[0].pr,children[0].pg,children[0].pb, 1);
-    drawFootball(ballX,gnd+11.0f);
+
+    drawFootball(ballX, gnd + 11.0f);
 }
 
 // =============================================================
@@ -1134,16 +1189,16 @@ void reshape(int w,int h){
 // =============================================================
 void timer(int){
     int nowTick = glutGet(GLUT_ELAPSED_TIME);
-    float dt = (lastTickMS < 0) ? (1.0f / 60.0f) : (nowTick - lastTickMS) / 1000.0f;
+    float dt = (lastTickMS < 0) ? (1.0f/60.0f) : (nowTick-lastTickMS)/1000.0f;
     if(dt < 0.001f) dt = 0.001f;
     if(dt > 0.050f) dt = 0.050f;
     lastTickMS = nowTick;
     float frameScale = dt * 60.0f;
 
     if(!pauseTime){
-        timeOfDay+=daySpeed*frameScale;
-        if(timeOfDay>=1.0f) timeOfDay-=1.0f;
-        for(int i=0;i<MAX_STARS;i++) stars[i].twinklePhase+=stars[i].twinkleSpeed*frameScale;
+        timeOfDay += daySpeed*frameScale;
+        if(timeOfDay >= 1.0f) timeOfDay -= 1.0f;
+        for(int i=0;i<MAX_STARS;i++) stars[i].twinklePhase += stars[i].twinkleSpeed*frameScale;
     }
 
     waterShimmer += 0.04f*frameScale;
@@ -1157,36 +1212,36 @@ void timer(int){
     if(keyDown[1]){ bird.vx+=accStep; if(bird.vx> MAX_V) bird.vx= MAX_V; }
     if(keyDown[2]){ bird.vy+=accStep; if(bird.vy> MAX_V) bird.vy= MAX_V; }
     if(keyDown[3]){ bird.vy-=accStep; if(bird.vy<-MAX_V) bird.vy=-MAX_V; }
-    bird.x+=bird.vx*frameScale; bird.y+=bird.vy*frameScale;
+    bird.x += bird.vx*frameScale; bird.y += bird.vy*frameScale;
     if(bird.x<  30) bird.x=  30; if(bird.x>1170) bird.x=1170;
     if(bird.y< 200) bird.y= 200; if(bird.y> 690) bird.y= 690;
-    bird.wingAngle+=bird.wingDir*4.5f*frameScale;
+    bird.wingAngle += bird.wingDir*4.5f*frameScale;
     if(bird.wingAngle> 22) bird.wingDir=-1;
     if(bird.wingAngle<-22) bird.wingDir= 1;
 
     if(trainMoving){ trainSpeed+=0.08f*frameScale; if(trainSpeed>TRAIN_MAX) trainSpeed=TRAIN_MAX; }
     else           { trainSpeed-=0.08f*frameScale; if(trainSpeed<0) trainSpeed=0; }
     if(trainSpeed>0){
-        trainX+=trainSpeed*frameScale;
+        trainX += trainSpeed*frameScale;
         if(trainX>1420) trainX=-430.0f;
         static float lastSmokeX=0;
         if(fabsf(trainX-lastSmokeX)>8.0f){
-            spawnSmoke(trainX+262+18+9,408);
+            spawnSmoke(trainX+262+18+9, 408);
             lastSmokeX=trainX;
         }
     }
 
     for(int i=0;i<MAX_SMOKE;i++){
         if(!smoke[i].active) continue;
-        smoke[i].x+=smoke[i].vx*frameScale; smoke[i].y+=smoke[i].vy*frameScale;
-        smoke[i].life-=0.015f*frameScale; smoke[i].size+=0.30f*frameScale;
+        smoke[i].x += smoke[i].vx*frameScale; smoke[i].y += smoke[i].vy*frameScale;
+        smoke[i].life -= 0.015f*frameScale;    smoke[i].size += 0.30f*frameScale;
         if(smoke[i].life<=0) smoke[i].active=false;
     }
 
-    ballX+=ballVX*frameScale;
-    ballSpin+=(ballVX>0?4.0f:-4.0f)*frameScale;
-    if(ballX>960.0f) ballVX=-1.8f;
-    if(ballX<210.0f) ballVX= 1.8f;
+    ballX += ballVX*frameScale;
+    ballSpin += (ballVX>0 ? 4.0f : -4.0f)*frameScale;
+    if(ballX > 960.0f) ballVX = -1.8f;
+    if(ballX < 210.0f) ballVX =  1.8f;
 
     static float prevBallX = ballX;
     bool enteredGoal = (ballVX > 0.0f &&
@@ -1201,25 +1256,26 @@ void timer(int){
 
     for(int i=0;i<4;i++){
         children[i].targetX = ballX + (i%2==0 ? -40.0f : 40.0f);
-        if(children[i].targetX<160.0f)  children[i].targetX=160.0f;
-        if(children[i].targetX>1120.0f) children[i].targetX=1120.0f;
+        if(children[i].targetX < 160.0f)  children[i].targetX = 160.0f;
+        if(children[i].targetX > 1120.0f) children[i].targetX = 1120.0f;
         float dx = children[i].targetX - children[i].x;
-        if(fabsf(dx)>2.0f){
+        if(fabsf(dx) > 2.0f){
             float step = (dx>0?1.0f:-1.0f) * children[i].speed * frameScale;
             children[i].x += step;
         }
-        children[i].animTimer += 0.08f*frameScale;
+        // IMPROVED: faster animTimer for snappier animation
+        children[i].animTimer += 0.12f*frameScale;
     }
 
     for(int i=0;i<3;i++){
-        clouds[i].x-=clouds[i].speed*frameScale;
-        if(clouds[i].x+200.0f*clouds[i].scale<0) clouds[i].x=1220.0f;
+        clouds[i].x -= clouds[i].speed*frameScale;
+        if(clouds[i].x+200.0f*clouds[i].scale < 0) clouds[i].x=1220.0f;
     }
 
     for(int i=0;i<3;i++){
-        autoBirds[i].x+=autoBirds[i].speed*frameScale;
-        if(autoBirds[i].x>1260.0f) autoBirds[i].x=-80.0f;
-        autoBirds[i].wingAngle+=autoBirds[i].wingDir*5.0f*frameScale;
+        autoBirds[i].x += autoBirds[i].speed*frameScale;
+        if(autoBirds[i].x > 1260.0f) autoBirds[i].x=-80.0f;
+        autoBirds[i].wingAngle += autoBirds[i].wingDir*5.0f*frameScale;
         if(autoBirds[i].wingAngle> 22) autoBirds[i].wingDir=-1;
         if(autoBirds[i].wingAngle<-22) autoBirds[i].wingDir= 1;
     }
@@ -1251,7 +1307,7 @@ void timer(int){
         if(tBird.x>1280.0f){
             tBird.x=-60.0f;
             tBird.y=440.0f+(float)(rand()%50);
-            tBird.vx=1.4f;  tBird.vy=0.0f;
+            tBird.vx=1.4f; tBird.vy=0.0f;
             tBird.state=0;
         }
     }
@@ -1263,12 +1319,12 @@ void timer(int){
 
     for(int i=0;i<MAX_LEAVES;i++){
         if(!leaves[i].active) continue;
-        leaves[i].x     +=leaves[i].vx*frameScale;
-        leaves[i].y     +=leaves[i].vy*frameScale;
-        leaves[i].vy    -=0.04f*frameScale;
-        leaves[i].vx    +=0.01f*frameScale;
-        leaves[i].angle +=leaves[i].angleV*frameScale;
-        leaves[i].life  -=0.006f*frameScale;
+        leaves[i].x      += leaves[i].vx*frameScale;
+        leaves[i].y      += leaves[i].vy*frameScale;
+        leaves[i].vy     -= 0.04f*frameScale;
+        leaves[i].vx     += 0.01f*frameScale;
+        leaves[i].angle  += leaves[i].angleV*frameScale;
+        leaves[i].life   -= 0.006f*frameScale;
         if(leaves[i].life<=0||leaves[i].y<0) leaves[i].active=false;
     }
 
@@ -1277,7 +1333,8 @@ void timer(int){
 
     if(rainActive){
         for(int i=0;i<MAX_RAIN;i++){
-            rain[i].y-=rain[i].speed*frameScale; rain[i].x+=1.5f*frameScale;
+            rain[i].y -= rain[i].speed*frameScale;
+            rain[i].x += 1.5f*frameScale;
             if(rain[i].y<0){ rain[i].y=700.0f+(float)(rand()%100); rain[i].x=(float)(rand()%1200); }
         }
     }
