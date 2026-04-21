@@ -44,9 +44,9 @@ RainDrop rain[MAX_RAIN];
 bool rainActive = false;
 
 // ================= LIGHTNING =================
-float lightningFlash    = 0.0f;   // 0=none, >0 = flash brightness fading
-float lightningTimer    = 0.0f;   // countdown to next bolt
-float lightningInterval = 6.0f;   // seconds between bolts (randomized)
+float lightningFlash    = 0.0f;
+float lightningTimer    = 0.0f;
+float lightningInterval = 6.0f;
 
 // ================= STARS =================
 struct Star { float x,y,brightness,twinkleSpeed,twinklePhase; };
@@ -69,17 +69,15 @@ AutoBird autoBirds[3] = {
 };
 
 // ================= TOWER BIRD =================
-// A bird that lands on the clock-tower roof and sits, then flies off
 struct TowerBird {
     float x, y;
     float vx, vy;
     float wingAngle;
     int   wingDir;
-    int   state;      // 0=flying-in  1=sitting  2=flying-off
-    float seatTimer;  // how long it has been sitting
+    int   state;
+    float seatTimer;
 };
 TowerBird tBird = { -60.0f, 460.0f, 1.4f, 0.0f, 0.0f, 1, 0, 0.0f };
-// Target seat on top of clock tower roof peak
 const float TOWER_SEAT_X = 304.0f;
 const float TOWER_SEAT_Y = 548.0f;
 
@@ -94,13 +92,13 @@ float goalTimer       = 0.0f;
 
 // ================= CHILDREN =================
 struct Child {
-    float x;          // current X
-    float targetX;    // X they walk toward
-    float speed;      // walk speed
-    float sr,sg,sb;   // shirt colour
-    float pr,pg,pb;   // pants colour
-    int   basepose;   // 0=runL 1=kick 2=armsup 3=runR 4=goalkeeper
-    int   animFrame;  // step cycle for walk animation
+    float x;
+    float targetX;
+    float speed;
+    float sr,sg,sb;
+    float pr,pg,pb;
+    int   basepose;
+    int   animFrame;
     float animTimer;
 };
 Child children[5] = {
@@ -118,17 +116,17 @@ struct Leaf {
 };
 Leaf leaves[MAX_LEAVES];
 
-// ================= WATER SHIMMER =================
-float waterShimmer = 0.0f;   // angle for shimmer oscillation
+// ================= WATER SHIMMER (kept for fog use) =================
+float waterShimmer = 0.0f;
 
 // ================= FOG =================
-float fogAlpha = 0.0f;       // 0=none  1=full fog
+float fogAlpha = 0.0f;
 
 // ================= STREET LAMP FLICKER =================
-float lampFlicker[MAX_LAMPS];   // each lamp has independent flicker offset
+float lampFlicker[MAX_LAMPS];
 
 // ================= WINDOW FLICKER =================
-float winFlicker[4];   // per-window brightness offsets
+float winFlicker[4];
 
 // ================= FPS =================
 int   frameCount  = 0;
@@ -155,7 +153,6 @@ float getDayFactor() {
     return 0.0f;
 }
 
-// returns 1 at dusk/dawn, 0 at midday/midnight
 float getDuskFactor() {
     float d = 0.0f;
     if (timeOfDay >= 0.25f && timeOfDay < 0.35f) d = 1.0f-(timeOfDay-0.25f)/0.10f;
@@ -280,7 +277,6 @@ void drawStars(){
 void drawMoon(){
     float nf=getNightFactor();
     if(nf<=0.0f) return;
-    // Moon in upper-left sky — well away from buildings and tower bird path
     float mx=155.0f, my=620.0f, r=38.0f;
     glColor3f(0.55f*nf,0.55f*nf,0.40f*nf); drawCircle(mx,my,r+28.0f,r+28.0f);
     glColor3f(0.70f*nf,0.70f*nf,0.52f*nf); drawCircle(mx,my,r+14.0f,r+14.0f);
@@ -349,50 +345,6 @@ void drawGround(){
 }
 
 // =============================================================
-//  RIVER / POND  (NEW)
-//  A shimmering water strip between ground (y=150) and grass (y=158)
-//  drawn ABOVE the ground, BELOW the grass spikes
-// =============================================================
-void drawRiver(){
-    float nf  = getNightFactor();
-    float dim = 1.0f - nf*0.55f;
-
-    // Base water colour — darker at night
-    float wr = 0.25f*dim, wg = 0.55f*dim, wb = 0.88f*dim;
-
-    // Main water body strip
-    glColor3f(wr, wg, wb);
-    drawRect(0, 148, 1200, 22);
-
-    // Shimmer highlight lines — oscillating sine wave positions
-    float nf2 = getNightFactor();
-    float moonRef = nf2 * 0.6f;   // moon reflection brightness at night
-    float dayRef  = getDayFactor() * 0.35f;
-    float refBright = moonRef + dayRef;
-
-    glLineWidth(1.8f);
-    for(int i=0;i<18;i++){
-        float phase = waterShimmer + i * 0.55f;
-        float xBase = (float)(i * 68) + 20.0f * sinf(phase);
-        float yOff  = 3.0f + 4.0f * sinf(phase * 1.3f);
-        float len   = 30.0f + 18.0f * sinf(phase * 0.7f);
-        float bright = refBright * (0.6f + 0.4f*sinf(phase));
-        bright = clampf(bright, 0.0f, 1.0f);
-        glColor3f(bright*0.9f+wr, bright*0.9f+wg*0.5f, bright+wb*0.1f);
-        glBegin(GL_LINES);
-        glVertex2f(xBase,      148.0f + yOff);
-        glVertex2f(xBase+len,  148.0f + yOff + 1.5f*sinf(phase*2.0f));
-        glEnd();
-    }
-    glLineWidth(1.0f);
-
-    // Thin dark edge lines top and bottom
-    glColor3f(0.15f*dim, 0.35f*dim, 0.60f*dim);
-    drawRect(0, 168, 1200, 2);
-    drawRect(0, 148, 1200, 2);
-}
-
-// =============================================================
 //  BOTTOM GRASS
 // =============================================================
 void drawBottomGrass(){
@@ -409,27 +361,23 @@ void drawBottomGrass(){
 }
 
 // =============================================================
-//  FOG / MIST  (FIXED — thin ground-hugging mist only)
-//  Rolls along the ground at dawn and dusk, stays below y=240
+//  FOG / MIST
 // =============================================================
 void drawFog(){
     if(fogAlpha <= 0.01f) return;
-    // 3 thin layers hugging the ground between y=158 and y=220
     for(int layer=0;layer<3;layer++){
-        float yBase  = 162.0f + layer * 18.0f;   // stays low, max y=198
+        float yBase  = 162.0f + layer * 18.0f;
         float alpha  = fogAlpha * (1.0f - layer * 0.30f);
         alpha = clampf(alpha, 0.0f, 0.40f);
         float bright = 0.76f + 0.12f * sinf(waterShimmer + layer);
-        // Blend colour toward background (sandy ground tones)
         float r = bright * alpha + (1.0f-alpha)*0.55f;
         float g = bright * alpha + (1.0f-alpha)*0.60f;
         float b = bright * alpha + (1.0f-alpha)*0.58f;
         glColor3f(r, g, b);
-        // Small flat ellipses — fw is half-width, fh is half-height
         for(int i=0;i<10;i++){
             float fx = i*125.0f + 25.0f*sinf(waterShimmer*0.25f + i*0.7f);
-            float fw = 55.0f + 15.0f*sinf(waterShimmer*0.18f + i);   // half-width ~40-70
-            float fh =  7.0f +  3.0f*sinf(waterShimmer*0.35f + i*1.1f); // half-height ~4-10
+            float fw = 55.0f + 15.0f*sinf(waterShimmer*0.18f + i);
+            float fh =  7.0f +  3.0f*sinf(waterShimmer*0.35f + i*1.1f);
             drawCircle(fx, yBase, fw, fh);
         }
     }
@@ -470,22 +418,20 @@ void drawAutoBird(float bx,float by,float scale,float wAngle){
 }
 
 // =============================================================
-//  TOWER BIRD  (NEW)
-//  Flies in from left, lands on clock-tower roof, sits, flies off right
+//  TOWER BIRD
 // =============================================================
 void drawTowerBird(){
-    if(tBird.state==1 && getDayFactor()<0.1f) return; // hide at night when sitting
+    if(tBird.state==1 && getDayFactor()<0.1f) return;
     glPushMatrix();
     glTranslatef(tBird.x, tBird.y, 0);
     glScalef(0.55f, 0.55f, 1.0f);
-    // When sitting, fold wings (small wingAngle)
     float wa = (tBird.state==1) ? 5.0f : tBird.wingAngle;
-    glColor3f(0.55f,0.25f,0.05f); drawTriangle(-40,0,-58,12,-58,-12); // tail brown
-    glColor3f(0.80f,0.35f,0.05f); drawTriangle(-30,-14,22,0,-30,14);  // body orange-brown
+    glColor3f(0.55f,0.25f,0.05f); drawTriangle(-40,0,-58,12,-58,-12);
+    glColor3f(0.80f,0.35f,0.05f); drawTriangle(-30,-14,22,0,-30,14);
     glPushMatrix(); glTranslatef(-10,6,0); glRotatef(wa,0,0,1);
     glColor3f(0.60f,0.28f,0.05f); drawTriangle(-18,0,6,0,-6,26);
     glPopMatrix();
-    glColor3f(0.95f,0.70f,0.0f); drawTriangle(20,-5,38,0,20,5);       // yellow beak
+    glColor3f(0.95f,0.70f,0.0f); drawTriangle(20,-5,38,0,20,5);
     glColor3f(0.05f,0.05f,0.05f); drawCircle(5,4,3.5f,3.5f);
     glColor3f(1.0f,1.0f,1.0f);   drawCircle(6,5,1.2f,1.2f);
     glPopMatrix();
@@ -515,8 +461,7 @@ void drawSmoke(){
 }
 
 // =============================================================
-//  LEAVES  (NEW)
-//  Blown off round trees in the wind
+//  LEAVES
 // =============================================================
 void spawnLeaf(float tx,float ty){
     for(int i=0;i<MAX_LEAVES;i++){
@@ -539,7 +484,6 @@ void drawLeaves(){
     for(int i=0;i<MAX_LEAVES;i++){
         if(!leaves[i].active) continue;
         float a = leaves[i].life;
-        // green to yellow-brown as they age
         glColor3f(0.20f+0.40f*(1.0f-a), 0.55f*a+0.30f*(1.0f-a), 0.05f);
         glPushMatrix();
         glTranslatef(leaves[i].x, leaves[i].y, 0);
@@ -567,8 +511,7 @@ void drawRain(){
 }
 
 // =============================================================
-//  LIGHTNING FLASH  (NEW)
-//  Full-screen white overlay that fades over 3 frames
+//  LIGHTNING FLASH
 // =============================================================
 void drawLightning(){
     if(lightningFlash <= 0.01f) return;
@@ -577,58 +520,103 @@ void drawLightning(){
 }
 
 // =============================================================
-//  STREET LAMPS  (NEW)
-//  4 lamps placed at regular intervals, glow cone at night
+//  STREET LAMPS  (FIXED)
+//  - Larger, warmer glow cone that fans UPWARD from the bulb
+//    so it's visible against dark backgrounds
+//  - Soft multi-layer halo around the bulb head
+//  - Uses glBlendFunc for additive-style blending on the halo
 // =============================================================
 void drawStreetLamps(){
     float nf = getNightFactor();
     float lampX[MAX_LAMPS] = { 155.0f, 390.0f, 720.0f, 1050.0f };
 
+    // Enable blending for the glow layers
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     for(int i=0;i<MAX_LAMPS;i++){
         float lx = lampX[i];
         float ly = 160.0f;   // base on ground
 
-        // Pole
-        glColor3f(0.35f,0.35f,0.38f);
+        // ── Pole ──────────────────────────────────────────────────────
+        glColor3f(0.38f,0.38f,0.40f);
         drawRect(lx-3, ly, 6, 110);
 
-        // Arm extending right
-        glColor3f(0.35f,0.35f,0.38f);
-        drawRect(lx-3, ly+104, 22, 5);
+        // ── Horizontal arm extending right ────────────────────────────
+        glColor3f(0.38f,0.38f,0.40f);
+        drawRect(lx-3, ly+104, 24, 5);
 
-        // Lamp head
-        glColor3f(0.25f,0.25f,0.28f);
-        drawRect(lx+14, ly+100, 18, 12);
+        // ── Lamp head (housing) ───────────────────────────────────────
+        glColor3f(0.28f,0.28f,0.30f);
+        drawRect(lx+16, ly+100, 18, 13);
 
+        // ── Night glow ────────────────────────────────────────────────
         if(nf > 0.05f){
-            // Flicker: each lamp has independent offset
-            float flick = 0.85f + 0.15f*sinf(lampFlicker[i]*12.0f);
+            float flick  = 0.88f + 0.12f * sinf(lampFlicker[i] * 11.5f);
             float bright = nf * flick;
 
-            // Bulb glow
-            glColor3f(1.0f*bright, 0.92f*bright, 0.45f*bright);
-            drawCircle(lx+23, ly+106, 7, 7);
+            // Bulb head glow (warm yellow-orange)
+            float br = clampf(1.00f * bright, 0.0f, 1.0f);
+            float bg = clampf(0.85f * bright, 0.0f, 1.0f);
+            float bb = clampf(0.30f * bright, 0.0f, 1.0f);
 
-            // Light cone below lamp (triangle fan)
+            // ── Outer soft halo – multi-layer circles, largest first ──
+            // Layer 3 (widest, very faint)
+            glColor4f(br, bg*0.6f, bb*0.2f, 0.12f * bright);
+            drawCircle(lx+25, ly+107, 55, 55);
+            // Layer 2
+            glColor4f(br, bg*0.7f, bb*0.3f, 0.22f * bright);
+            drawCircle(lx+25, ly+107, 35, 35);
+            // Layer 1 (tightest, brightest)
+            glColor4f(br, bg*0.85f, bb*0.5f, 0.45f * bright);
+            drawCircle(lx+25, ly+107, 18, 18);
+
+            // ── Solid bright bulb core ────────────────────────────────
+            glColor3f(br, bg, bb);
+            drawCircle(lx+25, ly+107, 7, 7);
+
+            // ── Ground cone – fans DOWNWARD (lower Y values in OpenGL) ─
+            //    The cone apex is at the bulb and spreads toward the ground
+            //    (y decreases = moves toward ground in this coordinate system
+            //     since Y=0 is bottom of window)
+            //    We draw a triangle fan going from the bulb DOWN to ground level.
+            float apexX  = lx + 25.0f;
+            float apexY  = ly + 100.0f;   // bottom of lamp housing (toward ground)
+            float coneHalfW = 70.0f;
+            float coneLen   = 115.0f;     // how far down the cone reaches
+            int   coneSteps = 24;
+
             glBegin(GL_TRIANGLE_FAN);
-              glColor3f(1.0f*bright*0.55f, 0.88f*bright*0.55f, 0.30f*bright*0.55f);
-              glVertex2f(lx+23, ly+106);
-              glColor3f(0.0f, 0.0f, 0.0f);  // fade to black at cone edge
-              int steps = 20;
-              float coneW = 55.0f, coneH = 90.0f;
-              for(int s=0;s<=steps;s++){
-                  float t2=(float)s/steps;
-                  float cx2 = lx+23 + (t2-0.5f)*coneW*2.0f;
-                  float cy2 = ly+106 - coneH;
+              // Apex: warm bright colour
+              glColor4f(br, bg * 0.75f, bb * 0.25f, 0.55f * bright);
+              glVertex2f(apexX, apexY);
+              // Spread out downward
+              for(int s = 0; s <= coneSteps; s++){
+                  float t2 = (float)s / coneSteps;
+                  float cx2 = apexX + (t2 - 0.5f) * coneHalfW * 2.0f;
+                  float cy2 = apexY - coneLen;
+                  // Fade to transparent at the far end (not black!)
+                  glColor4f(br * 0.8f, bg * 0.55f, bb * 0.15f, 0.0f);
                   glVertex2f(cx2, cy2);
               }
             glEnd();
 
-            // Outer soft glow halo around bulb
-            glColor3f(0.80f*bright*0.3f, 0.72f*bright*0.3f, 0.25f*bright*0.3f);
-            drawCircle(lx+23, ly+106, 22, 22);
+            // ── Secondary smaller upward glow above the lamp ──────────
+            glBegin(GL_TRIANGLE_FAN);
+              glColor4f(br, bg * 0.9f, bb * 0.4f, 0.30f * bright);
+              glVertex2f(apexX, ly + 113.0f);
+              for(int s = 0; s <= 20; s++){
+                  float t2 = (float)s / 20;
+                  float cx2 = apexX + (t2 - 0.5f) * 50.0f;
+                  float cy2 = ly + 113.0f + 45.0f;
+                  glColor4f(br, bg * 0.6f, 0.0f, 0.0f);
+                  glVertex2f(cx2, cy2);
+              }
+            glEnd();
         }
     }
+
+    glDisable(GL_BLEND);
 }
 
 // =============================================================
@@ -711,7 +699,6 @@ void drawClockTower(){
     glVertex2f(bx+44,by+125); glVertex2f(bx+44,by+148);
     glVertex2f(bx+44,by+125); glVertex2f(bx+62,by+130);
     glEnd(); glLineWidth(1.0f);
-    // Window — flickers warmly at night
     if(nf>0){
         float flick=0.85f+0.15f*sinf(winFlicker[0]*9.0f);
         glColor3f(1.0f*nf*flick, 0.9f*nf*flick, 0.3f*nf*flick);
@@ -729,7 +716,6 @@ void drawWarehouse(){
     glColor3f(0.80f,0.52f,0.10f); drawRect(bx,by+150,320,18);
     glColor3f(0.30f,0.14f,0.04f); drawRect(bx+112,by,96,118);
     glColor3f(0.50f,0.28f,0.08f); drawRect(bx+108,by+114,104,10);
-    // Windows flicker at night  (NEW)
     if(nf>0){
         float f1=0.80f+0.20f*sinf(winFlicker[1]*7.3f);
         float f2=0.80f+0.20f*sinf(winFlicker[2]*8.1f);
@@ -756,7 +742,6 @@ void drawSmallHouse(){
     glColor3f(0.38f,0.20f,0.06f); drawRect(bx+46,by,70,82);
     glColor3f(0.50f,0.28f,0.10f);
     drawRect(bx+46,by+27,70,4); drawRect(bx+46,by+54,70,4); drawRect(bx+81,by,4,82);
-    // Window flickers at night (NEW)
     if(nf>0){
         float f3=0.80f+0.20f*sinf(winFlicker[3]*6.9f);
         glColor3f(1.0f*nf*f3,0.9f*nf*f3,0.4f*nf*f3);
@@ -784,7 +769,6 @@ void drawTrain(){
     glPushMatrix();
     glTranslatef(trainX,0,0);
 
-    // Yellow cargo
     float yx=0.0f;
     glColor3f(0.95f,0.85f,0.05f); drawRect(yx,284,118,62);
     glColor3f(0.75f,0.65f,0.03f); drawRect(yx,340,118,8);
@@ -794,7 +778,6 @@ void drawTrain(){
     glColor3f(0.40f,0.40f,0.40f); drawCircle(yx+22,272,6,6);   drawCircle(yx+95,272,6,6);
     glColor3f(0.25f,0.25f,0.25f); drawRect(yx+116,300,14,8);
 
-    // Red passenger
     float rx=130.0f;
     glColor3f(0.88f,0.10f,0.10f); drawRect(rx,284,118,62);
     glColor3f(0.68f,0.06f,0.06f); drawRect(rx,340,118,8);
@@ -807,7 +790,6 @@ void drawTrain(){
     glColor3f(0.40f,0.40f,0.40f); drawCircle(rx+22,272,6,6);   drawCircle(rx+95,272,6,6);
     glColor3f(0.25f,0.25f,0.25f); drawRect(rx+116,300,14,8);
 
-    // Purple locomotive
     float lx=262.0f;
     glColor3f(0.50f,0.08f,0.72f); drawRect(lx,284,118,62);
     glColor3f(0.38f,0.05f,0.55f); drawRect(lx,346,52,30);
@@ -900,7 +882,7 @@ void drawFootball(float fx,float fy){
 }
 
 // =============================================================
-//  CHILDREN  (animated walk toward ball)
+//  CHILDREN
 // =============================================================
 void drawChild(float x,float ground,
                float sr,float sg,float sb,
@@ -986,10 +968,9 @@ void drawChild(float x,float ground,
 void drawChildren(){
     float gnd=162.0f;
     for(int i=0;i<5;i++){
-        // Pick running pose based on direction of movement
         int pose;
         if(i==4){
-            pose=4; // goalkeeper stays in goal
+            pose=4;
         } else if(fabsf(children[i].speed)<0.05f){
             pose=children[i].basepose;
         } else {
@@ -1000,7 +981,6 @@ void drawChildren(){
                   children[i].pr,children[i].pg,children[i].pb,
                   pose);
     }
-    // Child near ball kicks if close
     if(fabsf(children[0].x - ballX) < 25.0f)
         drawChild(children[0].x,gnd,
                   children[0].sr,children[0].sg,children[0].sb,
@@ -1035,20 +1015,20 @@ void display(){
     drawBush(840,278); drawBush(1010,278);
 
     drawGround();
-    drawRiver();        // NEW: river/water strip
+    // drawRiver() REMOVED
     drawTracks();
     drawTrain();
     drawSmoke();
     drawBottomGrass();
-    drawLeaves();       // NEW: falling leaves
-    drawStreetLamps();  // NEW: street lamps with night glow
+    drawLeaves();
+    drawStreetLamps();
     drawGoalPost();
     drawChildren();
     drawRain();
-    drawFog();          // NEW: dawn/dusk fog layer
-    drawTowerBird();    // NEW: bird on clock tower
+    drawFog();
+    drawTowerBird();
     drawBird();
-    drawLightning();    // NEW: lightning flash overlay
+    drawLightning();
     drawHUD();
 
     glutSwapBuffers();
@@ -1075,21 +1055,17 @@ void reshape(int w,int h){
 //  TIMER  (~60 fps)
 // =============================================================
 void timer(int){
-    // ── Day-night ────────────────────────────────────────────────────
     if(!pauseTime){
         timeOfDay+=daySpeed;
         if(timeOfDay>=1.0f) timeOfDay-=1.0f;
         for(int i=0;i<MAX_STARS;i++) stars[i].twinklePhase+=stars[i].twinkleSpeed;
     }
 
-    // ── Water shimmer ────────────────────────────────────────────────
     waterShimmer += 0.04f;
 
-    // ── Fog: rises at dusk/dawn, gone at midday and deep night ───────
     float targetFog = getDuskFactor() * 0.45f;
     fogAlpha += (targetFog - fogAlpha) * 0.008f;
 
-    // ── Player bird ──────────────────────────────────────────────────
     const float ACC=0.50f, MAX_V=8.0f;
     if(keyDown[0]){ bird.vx-=ACC; if(bird.vx<-MAX_V) bird.vx=-MAX_V; }
     if(keyDown[1]){ bird.vx+=ACC; if(bird.vx> MAX_V) bird.vx= MAX_V; }
@@ -1102,7 +1078,6 @@ void timer(int){
     if(bird.wingAngle> 22) bird.wingDir=-1;
     if(bird.wingAngle<-22) bird.wingDir= 1;
 
-    // ── Train ────────────────────────────────────────────────────────
     if(trainMoving){ trainSpeed+=0.08f; if(trainSpeed>TRAIN_MAX) trainSpeed=TRAIN_MAX; }
     else           { trainSpeed-=0.08f; if(trainSpeed<0) trainSpeed=0; }
     if(trainSpeed>0){
@@ -1115,7 +1090,6 @@ void timer(int){
         }
     }
 
-    // ── Smoke ────────────────────────────────────────────────────────
     for(int i=0;i<MAX_SMOKE;i++){
         if(!smoke[i].active) continue;
         smoke[i].x+=smoke[i].vx; smoke[i].y+=smoke[i].vy;
@@ -1123,42 +1097,33 @@ void timer(int){
         if(smoke[i].life<=0) smoke[i].active=false;
     }
 
-    // ── Football ─────────────────────────────────────────────────────
     ballX+=ballVX;
     ballSpin+=(ballVX>0?4.0f:-4.0f);
     if(ballX>960.0f) ballVX=-1.8f;
     if(ballX<210.0f) ballVX= 1.8f;
 
-    // Goal detection
     if(!goalCelebration && ballX>635.0f && ballX<765.0f){
         goalCelebration=true; goalTimer=0.0f; bird.score++;
     }
     if(goalCelebration){ goalTimer+=0.016f; if(goalTimer>2.5f) goalCelebration=false; }
 
-    // ── Children walk toward ball  (NEW) ─────────────────────────────
-    for(int i=0;i<4;i++){   // child 4 = goalkeeper stays put
-        // Update target to follow the ball
+    for(int i=0;i<4;i++){
         children[i].targetX = ballX + (i%2==0 ? -40.0f : 40.0f);
-        // Clamp target to field
         if(children[i].targetX<160.0f)  children[i].targetX=160.0f;
         if(children[i].targetX>1120.0f) children[i].targetX=1120.0f;
-        // Move toward target
         float dx = children[i].targetX - children[i].x;
         if(fabsf(dx)>2.0f){
             float step = (dx>0?1.0f:-1.0f) * children[i].speed;
             children[i].x += step;
         }
-        // Animate step timer
         children[i].animTimer += 0.08f;
     }
 
-    // ── Clouds ───────────────────────────────────────────────────────
     for(int i=0;i<3;i++){
         clouds[i].x-=clouds[i].speed;
         if(clouds[i].x+200.0f*clouds[i].scale<0) clouds[i].x=1220.0f;
     }
 
-    // ── Auto birds ───────────────────────────────────────────────────
     for(int i=0;i<3;i++){
         autoBirds[i].x+=autoBirds[i].speed;
         if(autoBirds[i].x>1260.0f) autoBirds[i].x=-80.0f;
@@ -1167,9 +1132,7 @@ void timer(int){
         if(autoBirds[i].wingAngle<-22) autoBirds[i].wingDir= 1;
     }
 
-    // ── Tower bird state machine  (NEW) ──────────────────────────────
     if(tBird.state==0){
-        // Flying in toward seat
         float dx=TOWER_SEAT_X-tBird.x, dy=TOWER_SEAT_Y-tBird.y;
         float dist=sqrtf(dx*dx+dy*dy);
         if(dist<3.0f){
@@ -1184,50 +1147,42 @@ void timer(int){
         if(tBird.wingAngle> 22) tBird.wingDir=-1;
         if(tBird.wingAngle<-22) tBird.wingDir= 1;
     } else if(tBird.state==1){
-        // Sitting on tower
         tBird.seatTimer+=0.016f;
-        tBird.wingAngle=5.0f;  // folded wings
-        if(tBird.seatTimer>6.0f) tBird.state=2;  // after 6s fly off
+        tBird.wingAngle=5.0f;
+        if(tBird.seatTimer>6.0f) tBird.state=2;
     } else {
-        // Flying off to the right
         tBird.vx+=0.04f; tBird.vy+=0.015f;
         tBird.x+=tBird.vx; tBird.y+=tBird.vy;
         tBird.wingAngle+=tBird.wingDir*5.0f;
         if(tBird.wingAngle> 22) tBird.wingDir=-1;
         if(tBird.wingAngle<-22) tBird.wingDir= 1;
-        // Once off-screen, reset to fly in again from the left
         if(tBird.x>1280.0f){
             tBird.x=-60.0f;
-            // Spawn in mid-sky range (y=440-490) — below moon (y=620) and above buildings
             tBird.y=440.0f+(float)(rand()%50);
             tBird.vx=1.4f;  tBird.vy=0.0f;
             tBird.state=0;
         }
     }
 
-    // ── Leaf spawning from round trees  (NEW) ────────────────────────
     static int leafCounter=0;
     leafCounter++;
-    if(leafCounter%22==0) spawnLeaf(1060.0f, 405.0f);  // right tree 1
-    if(leafCounter%31==0) spawnLeaf(1153.0f, 402.0f);  // right tree 2
+    if(leafCounter%22==0) spawnLeaf(1060.0f, 405.0f);
+    if(leafCounter%31==0) spawnLeaf(1153.0f, 402.0f);
 
-    // Update existing leaves
     for(int i=0;i<MAX_LEAVES;i++){
         if(!leaves[i].active) continue;
         leaves[i].x     +=leaves[i].vx;
         leaves[i].y     +=leaves[i].vy;
-        leaves[i].vy    -=0.04f;        // gravity
-        leaves[i].vx    +=0.01f;        // wind drift
+        leaves[i].vy    -=0.04f;
+        leaves[i].vx    +=0.01f;
         leaves[i].angle +=leaves[i].angleV;
         leaves[i].life  -=0.006f;
         if(leaves[i].life<=0||leaves[i].y<0) leaves[i].active=false;
     }
 
-    // ── Lamp and window flicker  (NEW) ───────────────────────────────
     for(int i=0;i<MAX_LAMPS;i++) lampFlicker[i]+=0.07f+(float)i*0.013f;
     for(int i=0;i<4;i++)         winFlicker[i] +=0.05f+(float)i*0.009f;
 
-    // ── Rain ─────────────────────────────────────────────────────────
     if(rainActive){
         for(int i=0;i<MAX_RAIN;i++){
             rain[i].y-=rain[i].speed; rain[i].x+=1.5f;
@@ -1235,19 +1190,16 @@ void timer(int){
         }
     }
 
-    // ── Lightning  (NEW) ─────────────────────────────────────────────
     if(rainActive){
         lightningTimer-=0.016f;
         if(lightningTimer<=0.0f){
-            // Trigger a new flash
             lightningFlash=0.85f;
             lightningInterval=5.0f+(float)(rand()%40)*0.1f;
             lightningTimer=lightningInterval;
         }
     } else {
-        lightningTimer=3.0f;  // reset when rain stops
+        lightningTimer=3.0f;
     }
-    // Fade the flash over ~3 frames
     if(lightningFlash>0.0f){
         lightningFlash-=0.30f;
         if(lightningFlash<0.0f) lightningFlash=0.0f;
@@ -1298,7 +1250,11 @@ int main(int argc,char** argv){
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
     glutInitWindowSize(WINDOW_W,WINDOW_H);
     glutInitWindowPosition(80,40);
-    glutCreateWindow("Animated Scene - Enhanced v7");
+    glutCreateWindow("Animated Scene - Enhanced v8");
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);  // off by default; enabled per-draw in lamp function
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
