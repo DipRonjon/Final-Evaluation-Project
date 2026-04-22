@@ -455,19 +455,7 @@ void drawFog(){
 // =============================================================
 //  CLOUDS
 // =============================================================
-void drawCloudAt(float cx,float cy,float scale){
-    float tint=0.0f;
-    if(timeOfDay>=0.65f&&timeOfDay<0.75f)       tint=(timeOfDay-0.65f)/0.10f;
-    else if(timeOfDay>=0.75f&&timeOfDay<0.80f)  tint=1.0f-(timeOfDay-0.75f)/0.05f;
-    else if(timeOfDay>=0.25f&&timeOfDay<0.35f)  tint=1.0f-(timeOfDay-0.25f)/0.10f;
-    float r1=45.0f*scale,r2=52.0f*scale;
-    float r1y=38.0f*scale,r2y=42.0f*scale,gap=50.0f*scale;
-    glColor3f(1.0f,lerp(1.0f,0.55f,tint),lerp(1.0f,0.20f,tint));
-    drawCircle(cx,       cy,              r1, r1y);
-    drawCircle(cx+gap,   cy+18.0f*scale,  r2, r2y);
-    drawCircle(cx+gap*2, cy,              r1, r1y);
-    drawRect(cx,cy-r1y*0.5f,gap*2.0f,r1y*1.1f);
-}
+
 
 // =============================================================
 //  AUTO BIRD
